@@ -2,6 +2,9 @@ import svelte from "rollup-plugin-svelte"
 import resolve from "rollup-plugin-node-resolve"
 import commonjs from "rollup-plugin-commonjs"
 import { terser } from "rollup-plugin-terser"
+import uglify from "rollup-plugin-uglify"
+import livereload from "rollup-plugin-livereload"
+import { sass } from "svelte-preprocess-sass"
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -23,8 +26,11 @@ export default {
       dev: !production,
       // we'll extract any component CSS out into
       // a separate file — better for performance
-      css: css => {
-        css.write("public/bundle.css")
+      // css: css => {
+      //   css.write("public/bundle.css")
+      // },
+            preprocess: {
+        style: sass({ all: true })
       }
     }),
 
@@ -35,9 +41,12 @@ export default {
     // https://github.com/rollup/rollup-plugin-commonjs
     resolve(),
     commonjs(),
+    livereload("public"),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
-    production && terser()
+    production && terser(),
+    production && uglify()
+    // serve("public"),      // index.html should be in root of project
   ]
 }
